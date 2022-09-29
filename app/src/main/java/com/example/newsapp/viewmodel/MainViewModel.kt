@@ -13,10 +13,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.Objects
 
-class MainViewModel(private val newsRepository: NewsRepository) :ViewModel(){
+class MainViewModel() :ViewModel(){
+
   val newslist = MutableLiveData<NewsList>()
     init {
-
+        val newsAPI = RetrofitInstance.getRetrofitInstance().create(NewsAPI::class.java)
+        val newsRepository = NewsRepository(newsAPI)
         viewModelScope.launch(Dispatchers.IO) {
             val response=newsRepository.getNews();
 
@@ -25,8 +27,22 @@ class MainViewModel(private val newsRepository: NewsRepository) :ViewModel(){
             }
         }
 
+
     }
 
 
+
+    private var openHomeFragment: MutableLiveData<Event<Array<Any>>> =
+        MutableLiveData<Event<Array<Any>>>()
+
+
+
+    fun getOpenHomeFragment(): MutableLiveData<Event<Array<Any>>> {
+        return openHomeFragment
+    }
+
+    fun setOpenHomeFragment(objects: Array<Any>) {
+        openHomeFragment.value = Event(objects)
+    }
 
 }

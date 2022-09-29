@@ -7,7 +7,7 @@ import com.example.newsapp.repository.NewsRepository
 class MainViewModelFactory(private val newsRepository: NewsRepository):ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return MainViewModel(newsRepository) as T
+        return MainViewModel() as T
     }
 
 }

@@ -2,36 +2,23 @@ package com.example.newsapp.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.lifecycle.get
 import com.example.newsapp.R
-import com.example.newsapp.adapter.NewsAdapter
 import com.example.newsapp.api.NewsAPI
 import com.example.newsapp.api.RetrofitInstance
 import com.example.newsapp.databinding.ActivityMainBinding
-import com.example.newsapp.model.Article
-import com.example.newsapp.model.NewsList
 import com.example.newsapp.repository.NewsRepository
 import com.example.newsapp.viewmodel.MainViewModel
-import com.example.newsapp.viewmodel.MainViewModelFactory
-import com.richReach.helpers.livedatawrapper.Event
 
 class MainActivity : AppCompatActivity() {
 
     lateinit var  binding: ActivityMainBinding
 
     lateinit var mainViewModel: MainViewModel
-    var list =ArrayList<Article>()
 
-    lateinit var  recyclerView : RecyclerView
-    lateinit var newsAdapter : NewsAdapter
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,46 +26,42 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         initViewModel()
+        observeViewModel()
+        mainViewModel.setOpenHomeFragment(arrayOf(1,2))
 
+    }
 
-        mainViewModel.newslist.observe(this, Observer<NewsList> {
+    private fun observeViewModel() {
 
-
-            binding.progressBar.visibility = View.VISIBLE
-            list.clear()
-            list.addAll(it.articles!!)
-
-            binding.progressBar.visibility = View.INVISIBLE
-
-
-            recyclerView = binding.recyclerView
-            recyclerView.layoutManager = LinearLayoutManager(this)
-            newsAdapter =NewsAdapter(this,list)
-            recyclerView.adapter = newsAdapter
-            newsAdapter.notifyDataSetChanged()
-
-
-            //  adapter.not
-
-
-        })
-
-
-
-
-
-
+        mainViewModel.getOpenHomeFragment().observe(this) { event ->
+            val objects: Array<Any>? = event.getContentIfNotHandled()
+            if (objects != null) {
+                openFragment(HomeFragment.newInstance(), "")
+            }
+        }
+    }
+    private fun openFragment(fragment: Fragment, tag: String) {
+        val transaction = supportFragmentManager.beginTransaction()
+        setFragmentTransactionAnimation(transaction, tag)
+        transaction.replace(R.id.main_container, fragment, tag)
+        transaction.addToBackStack(tag)
+        transaction.commit()
+    }
+    private fun setFragmentTransactionAnimation(transaction: FragmentTransaction, tag: String) {
+        transaction.setCustomAnimations(
+            R.anim.enter_from_right,
+            R.anim.exit_to_left,
+            R.anim.enter_from_left,
+            R.anim.exit_to_right
+        )
     }
 
 
 
 
 
-
     private fun initViewModel() {
-        val newsAPI = RetrofitInstance.getRetrofitInstance().create(NewsAPI::class.java)
-        val repository = NewsRepository(newsAPI)
 
-        mainViewModel = ViewModelProvider(this,MainViewModelFactory(repository)).get(MainViewModel::class.java)
+        mainViewModel = ViewModelProvider(this).get(MainViewModel::class.java)
     }
 }

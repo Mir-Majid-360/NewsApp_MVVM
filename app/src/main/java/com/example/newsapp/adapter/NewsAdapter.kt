@@ -6,10 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.example.newsapp.R
 import com.example.newsapp.model.Article
-import com.example.newsapp.model.NewsList
 import com.squareup.picasso.Picasso
 
 class NewsAdapter(var context: Context, val articles:  ArrayList<Article> ) : RecyclerView.Adapter<NewsAdapter.MyViewHolder>(){
